@@ -1,0 +1,61 @@
+<%- include('_header', { title, adminUser, activeTab: 'dashboard' }) %>
+
+    <div class="mt-3 mb-2">
+      <h2 class="h4 mb-1">Dashboard</h2>
+    </div>
+    <div class="grid grid-4 mt-1">
+      <div class="card"><div class="card-body"><div class="text-muted mb-2">Wszystkie artykuły</div><p class="display-6"><%= stats ? stats.totalArticles : 0 %></p></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted mb-2">Opublikowane</div><p class="display-6"><%= stats ? stats.published : 0 %></p></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted mb-2">Szkice</div><p class="display-6"><%= stats ? stats.drafts : 0 %></p></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted mb-2">Łączne wyświetlenia</div><p class="display-6"><%= stats ? stats.totalViews : 0 %></p></div></div>
+    </div>
+
+    <!-- Tiles row: Latest articles + Quick actions -->
+    <div class="row row-2 mt-1">
+      <!-- Latest articles -->
+      <div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Ostatnie artykuły</h5>
+            <ul style="list-style:none;margin:0;padding:0">
+              <% if (recentArticles && recentArticles.length > 0) { %>
+                <% recentArticles.forEach(function(article){ %>
+                  <li style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--admin-border);padding:.75rem 0">
+                    <div style="margin-right:.75rem">
+                      <a href="/aktualnosci/<%= article.slug %>" style="text-decoration:none;color:#111827"><%= article.title %></a>
+                      <div class="text-muted" style="font-size:.85rem">
+                        Data ostatniej aktualizacji: <%= new Date(article.updatedAt).toLocaleDateString('pl-PL') %>
+                        <% const editorName = article.lastEditedByName || article.updatedByName || article.editorName || article.updatedBy || article.createdByName || article.author; %>
+                        <% if (editorName) { %>
+                          • Ostatnio edytował: <%= editorName %>
+                        <% } %>
+                      </div>
+                    </div>
+                    <span class="badge badge-success"><%= article.status === 'published' ? 'Opublikowany' : 'Szkic' %></span>
+                  </li>
+                <% }) %>
+              <% } else { %>
+                <li class="text-muted">Brak artykułów</li>
+              <% } %>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Szybkie akcje</h5>
+            <div>
+              <div class="mb-2"><a href="/admin/articles/new" class="btn btn-primary" style="width:100%">Dodaj nowy artykuł</a></div>
+              <div class="mb-2"><a href="/admin/menu" class="btn btn-light" style="width:100%">Zarządzaj menu</a></div>
+              <div class="mb-2"><a href="/admin/settings" class="btn btn-light" style="width:100%">Ustawienia strony</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<%- include('_footer') %>
+
+

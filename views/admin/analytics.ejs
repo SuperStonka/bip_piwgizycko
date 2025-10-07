@@ -1,0 +1,78 @@
+<%- include('_header', { title, adminUser, activeTab: 'analytics' }) %>
+  <div class="page-content">
+    <div class="mt-3 mb-2">
+      <h2 class="h4 mb-1" style="margin:0;">Analityka</h2>
+      <div class="text-muted" style="font-size:.95rem">Statystyki i analiza aktywności na stronie</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1rem;">
+      <div class="card"><div class="card-body"><div class="text-muted" style="font-size:.9rem">Wszystkie artykuły</div><div style="font-size:2rem;font-weight:700"><%= kpis.totalArticles %></div></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted" style="font-size:.9rem">Opublikowane</div><div style="font-size:2rem;font-weight:700"><%= kpis.published %></div></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted" style="font-size:.9rem">Szkice</div><div style="font-size:2rem;font-weight:700"><%= kpis.drafts %></div></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted" style="font-size:.9rem">Łączne wyświetlenia</div><div style="font-size:2rem;font-weight:700"><%= kpis.totalViews %></div></div></div>
+      <div class="card"><div class="card-body"><div class="text-muted" style="font-size:.9rem">Średnie wyświetlenia</div><div style="font-size:2rem;font-weight:700"><%= kpis.avgViews %></div></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="card"><div class="card-body">
+        <div style="font-weight:600;margin-bottom:.5rem">Najczęściej wyświetlane artykuły</div>
+        <div style="overflow:auto">
+          <table class="table" style="width:100%">
+            <thead><tr><th style="text-align:left">Tytuł</th><th class="text-center">Wyświetlenia</th></tr></thead>
+            <tbody>
+              <% (topViewed||[]).forEach(function(a){ %>
+                <tr>
+                  <td style="text-align:left"><a href="/aktualnosci/<%= a.slug %>" target="_blank" rel="noopener"><%= a.title %></a><div class="text-muted" style="font-size:.8rem">/<%= a.slug %></div></td>
+                  <td class="text-center"><%= a.view_count %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div></div>
+
+      <div class="card"><div class="card-body">
+        <div style="font-weight:600;margin-bottom:.5rem">Ostatnie artykuły</div>
+        <div style="overflow:auto">
+          <table class="table" style="width:100%">
+            <thead><tr><th style="text-align:left">Tytuł</th><th>Autor</th><th>Status</th></tr></thead>
+            <tbody>
+              <% (recent||[]).forEach(function(a){ %>
+                <tr>
+                  <td style="text-align:left"><a href="/aktualnosci/<%= a.slug %>" target="_blank" rel="noopener"><%= a.title %></a><div class="text-muted" style="font-size:.8rem"><%= new Date(a.updated_at).toLocaleDateString('pl-PL') %></div></td>
+                  <td><%= a.authorName || '' %></td>
+                  <td>
+                    <% if (a.status==='published') { %>
+                      <span class="badge badge-success">Opublikowany</span>
+                    <% } else if (a.status==='draft') { %>
+                      <span class="badge badge-draft">Szkic</span>
+                    <% } else { %>
+                      <%= a.status %>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem;">
+      <div class="card"><div class="card-body">
+        <div style="font-weight:600;margin-bottom:.5rem">Artykuły wg kategorii</div>
+        <div style="overflow:auto">
+          <table class="table" style="width:100%">
+            <thead><tr><th>Kategoria</th><th class="text-center">Artykuły</th></tr></thead>
+            <tbody>
+              <% (perCategory||[]).forEach(function(r){ %>
+                <tr><td><%= r.category %></td><td class="text-center"><%= r.cnt %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div></div>
+    </div>
+  </div>
+<%- include('_footer') %>
+

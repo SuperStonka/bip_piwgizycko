@@ -1,0 +1,441 @@
+/* Accessibility Controls */
+.accessibility-controls {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.accessibility-btn {
+    background: #fff;
+    border: 2px solid #333;
+    color: #333;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accessibility-btn:hover,
+.accessibility-btn:focus {
+    background: #333;
+    color: #fff;
+    outline: 2px solid #2b7cb3;
+    outline-offset: 2px;
+}
+
+/* High contrast mode */
+/* High contrast base with dark gray background */
+body.high-contrast {
+    background: #121212;
+    color: #fff;
+}
+
+/* Header in high contrast: dark background */
+body.high-contrast .site-header {
+    background: #1a1a1a;
+    border-bottom: 3px solid #9ca3af;
+}
+
+body.high-contrast .main-navigation {
+    background: #1a1a1a;
+    border-bottom: 3px solid #9ca3af;
+}
+
+/* Top accessibility bar in high contrast */
+body.high-contrast .top-accessibility-bar {
+    background-color: #1a1a1a !important;
+    border-bottom: 1px solid #9ca3af;
+}
+
+/* Highlight default font size control (A) in HC */
+body.high-contrast .top-accessibility-bar .font-btn.active,
+body.high-contrast .top-accessibility-bar #font-reset.font-btn {
+    background-color: #ffff00 !important;
+    color: #000 !important;
+    border-color: #9ca3af !important;
+}
+
+/* Containers and content */
+body.high-contrast .container,
+body.high-contrast .content-wrapper,
+body.high-contrast .main-content-area { background: #1a1a1a !important; color: #fff !important; }
+body.high-contrast .left-sidebar,
+body.high-contrast .sidebar-menu,
+body.high-contrast .sidebar-list,
+body.high-contrast .sidebar-submenu { background: #181818 !important; color: #fff !important; }
+body.high-contrast .article-container,
+body.high-contrast .article-content { background: #1f1f1f !important; color: #fff !important; }
+body.high-contrast .article-header,
+body.high-contrast .section-header,
+body.high-contrast .breadcrumb { background: #222 !important; color: #fff !important; }
+
+/* Borders */
+body.high-contrast .article-container,
+body.high-contrast .left-sidebar,
+body.high-contrast .sidebar-list li,
+body.high-contrast .sidebar-sublink,
+body.high-contrast .sidebar-link,
+body.high-contrast .breadcrumb,
+body.high-contrast .article-header {
+    border-color: #9ca3af !important;
+}
+
+/* Explicit border overrides for elements using shorthand borders */
+body.high-contrast .article-container { border: 1px solid #e5e7eb !important; }
+body.high-contrast .left-sidebar { border: 1px solid #e5e7eb !important; }
+body.high-contrast .breadcrumb { border-bottom: 1px solid #e5e7eb !important; }
+body.high-contrast .article-header { border-bottom: 1px solid #e5e7eb !important; }
+body.high-contrast .sidebar-list li { border-bottom: 1px solid #e5e7eb !important; }
+body.high-contrast .submenu a { border-bottom: 1px solid #e5e7eb !important; }
+body.high-contrast .sidebar-sublink { border-bottom: 1px solid #e5e7eb !important; }
+body.high-contrast .pagination-btn,
+body.high-contrast .pagination-current { border: 1px solid #e5e7eb !important; }
+
+body.high-contrast .main-menu a {
+    color: #fff;
+    border: 1px solid #fff;
+    margin: 2px;
+}
+
+body.high-contrast .main-menu a:hover,
+body.high-contrast .main-menu a:focus {
+    background: #fff;
+    color: #000;
+}
+
+body.high-contrast .news-card,
+body.high-contrast .news-item,
+body.high-contrast .quick-link { background: #1f1f1f; border: 2px solid #9ca3af; color: #fff; }
+
+body.high-contrast .news-card:hover,
+body.high-contrast .news-item:hover,
+body.high-contrast .quick-link:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* Article footer in high contrast */
+body.high-contrast .article-footer {
+    background-color: #323232 !important;
+    color: #fff !important;
+}
+
+/* High contrast: highlight headers and active items in yellow */
+body.high-contrast .article-header h1,
+body.high-contrast .section-header .section-title,
+body.high-contrast .site-title {
+    color: #ffff00 !important;
+}
+
+/* Active menu items (top menu and sidebar) */
+body.high-contrast .main-menu a.active,
+body.high-contrast .sidebar-link.active,
+body.high-contrast .sidebar-sublink.active {
+    background-color: #ffff00 !important;
+    color: #000 !important;
+    border-color: #9ca3af !important;
+}
+
+/* Article content text in high contrast to yellow */
+body.high-contrast .article-content,
+body.high-contrast .article-content p,
+body.high-contrast .article-content li {
+    color: #ffff00 !important;
+}
+
+body.high-contrast .site-footer { background: #1a1a1a; border-top: 3px solid #9ca3af; }
+body.high-contrast .copyright-bar {
+    background: #1a1a1a;
+    border-top: 1px solid #9ca3af;
+}
+
+/* Links in HC: yellow for anchors only; ensure general text stays white */
+body.high-contrast a { color: #ffff00; }
+body.high-contrast .accessibility-right .utility-link { color: #ffff00 !important; }
+body.high-contrast h1, 
+body.high-contrast h2, 
+body.high-contrast h3, 
+body.high-contrast p, 
+body.high-contrast li { color: #fff; }
+
+body.high-contrast a:hover,
+body.high-contrast a:focus {
+    color: #000;
+    background: #ffff00;
+}
+
+/* Sidebar links */
+body.high-contrast .sidebar-link,
+body.high-contrast .sidebar-sublink {
+    color: #fff !important;
+    background: #000 !important;
+    border: 1px solid #9ca3af !important;
+}
+body.high-contrast .sidebar-link:hover,
+body.high-contrast .sidebar-link:focus,
+body.high-contrast .sidebar-sublink:hover,
+body.high-contrast .sidebar-sublink:focus {
+    background: #ffff00 !important;
+    color: #000 !important;
+}
+
+/* Breadcrumbs */
+body.high-contrast .breadcrumb-list li,
+body.high-contrast .breadcrumb-list a {
+    color: #fff !important;
+}
+body.high-contrast .breadcrumb-list li::after {
+    color: #fff !important;
+}
+
+/* Action buttons */
+body.high-contrast .action-btn,
+body.high-contrast .pdf-btn,
+body.high-contrast button.action-btn {
+    background: transparent !important;
+    color: #fff !important;
+    border: 1px solid #9ca3af !important;
+}
+body.high-contrast .action-btn:hover,
+body.high-contrast .action-btn:focus,
+body.high-contrast .pdf-btn:hover,
+body.high-contrast .pdf-btn:focus,
+body.high-contrast button.action-btn:hover,
+body.high-contrast button.action-btn:focus {
+    background: #ffff00 !important;
+    color: #000 !important;
+    border-color: #9ca3af !important;
+}
+
+/* Tables and separators */
+body.high-contrast hr,
+body.high-contrast .article-meta,
+body.high-contrast .section-header,
+body.high-contrast .breadcrumb {
+    border-color: #9ca3af !important;
+}
+
+/* Font size controls */
+/* Smaller than default */
+body.font-xxsmall { font-size: 12px; }
+body.font-xsmall  { font-size: 13px; }
+body.font-small   { font-size: 14px; }
+body.font-large   { font-size: 16px; }
+body.font-xlarge  { font-size: 18px; }
+body.font-xxlarge { font-size: 20px; }
+
+/* Focus indicators */
+*:focus {
+    outline: 2px solid #2b7cb3;
+    outline-offset: 2px;
+}
+
+/* Skip links */
+.skip-links a {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1001;
+}
+
+.skip-links a:focus {
+    position: static;
+    left: 6px;
+    top: 7px;
+    width: auto;
+    height: auto;
+}
+
+/* Screen reader only content */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* High contrast media query */
+@media (prefers-contrast: high) {
+    .news-card,
+    .news-item,
+    .quick-link {
+        border-width: 2px;
+        border-color: #000;
+    }
+    
+    .btn {
+        border: 2px solid #000;
+    }
+}
+
+/* Focus visible for better keyboard navigation */
+.btn:focus-visible,
+.main-menu a:focus-visible,
+.quick-link:focus-visible {
+    outline: 3px solid #2b7cb3;
+    outline-offset: 2px;
+}
+
+/* Ensure sufficient color contrast */
+.news-category {
+    background-color: #d32f2f;
+    color: #fff;
+}
+
+.btn {
+    background-color: #d32f2f;
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: #1976d2;
+    color: #fff;
+}
+
+/* Ensure text is readable */
+.news-excerpt {
+    color: #424242;
+}
+
+/* Text-only mode: hide non-textual decorative elements */
+body.text-only img,
+body.text-only .logo-img,
+body.text-only .sidebar-logo,
+body.text-only .news-image,
+body.text-only .action-icon,
+body.text-only .hamburger-icon {
+    display: none !important;
+}
+
+body.text-only .article-content,
+body.text-only .news-excerpt,
+body.text-only p,
+body.text-only li {
+    line-height: 1.8;
+}
+
+body.text-only a {
+    text-decoration: underline !important;
+}
+
+/* Text-only toolbar */
+.text-only-toolbar { display: none; }
+body.text-only .text-only-toolbar {
+    display: block;
+    padding: 10px;
+}
+body.text-only .site-header,
+body.text-only .main-navigation,
+body.text-only .site-footer,
+body.text-only .breadcrumb,
+body.text-only .left-sidebar,
+body.text-only .article-footer,
+body.text-only .copyright-bar,
+body.text-only .back-to-top-btn {
+    display: none !important;
+}
+body.text-only .main-content { padding: 0; }
+body.text-only .article-container,
+body.text-only .main-content-area { border: 0 !important; }
+
+/* Ensure links are distinguishable */
+a:not(.btn):not(.news-title a):not(.quick-link):not(.sidebar-link):not(.sidebar-sublink):not(.action-btn) {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Utility links styling overrides */
+.accessibility-right .utility-link {
+    text-decoration: none;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+
+/* Remove background from contrast/text mode buttons */
+#contrast-toggle,
+#textmode-toggle {
+    background: transparent !important;
+}
+
+/* Ensure interactive elements have sufficient size */
+.btn,
+.accessibility-btn,
+.main-menu a,
+.quick-link {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Ensure form elements are accessible */
+input, textarea, select {
+    font-size: 16px; /* Prevents zoom on mobile */
+    padding: 0.5rem;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #2b7cb3;
+    outline: 2px solid #2b7cb3;
+    outline-offset: 2px;
+}
+
+/* Ensure sufficient spacing between interactive elements */
+.main-menu li {
+    margin-right: 0;
+}
+
+.main-menu a {
+    margin: 2px;
+}
+
+/* Ensure text has sufficient line height */
+p, li, .news-excerpt {
+    line-height: 1.6;
+}
+
+/* Ensure headings have sufficient spacing */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+h1:first-child, h2:first-child, h3:first-child {
+    margin-top: 0;
+}

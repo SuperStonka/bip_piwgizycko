@@ -1,0 +1,229 @@
+<%- include('_header', { title, adminUser, activeTab: 'articles' }) %>
+    <div class="page-content">
+      <div class="mt-3 mb-2" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div>
+          <h2 class="h4 mb-1" style="margin:0;">Artykuły</h2>
+          <div class="text-muted" style="font-size:.95rem">Zarządzaj artykułami i treściami strony</div>
+        </div>
+        <a href="/admin/articles/new" class="btn btn-primary">Dodaj nowy artykuł</a>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <% if (query && (query.created || query.updated)) { %>
+            <div class="alert alert-success">
+              Artykuł <%= query.created ? 'został dodany' : 'zapisany' %>.
+              <button type="button" class="close" aria-label="Zamknij" onclick="this.parentElement.remove()">×</button>
+            </div>
+          <% } %>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;">
+            <input type="text" id="searchInput" placeholder="Szukaj…" class="login-input" style="max-width:260px">
+            <select id="statusFilter" class="login-input" style="max-width:180px">
+              <option value="">Wszystkie statusy</option>
+              <option value="published">Opublikowane</option>
+              <option value="draft">Szkice</option>
+            </select>
+            <select id="categoryFilter" class="login-input" style="max-width:220px">
+              <option value="">Wszystkie pozycje</option>
+              <% const menuTitles = Array.from(new Set((articleList||[]).map(a=>a.menuItemTitle).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pl')); %>
+              <% menuTitles.forEach(function(t){ %>
+                <option value="<%= t %>"><%= t %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div style="overflow:auto">
+            <table id="articlesTable" class="table" style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr>
+                  <th data-sort="title" style="text-align:left;cursor:pointer">Tytuł</th>
+                  <th data-sort="status" style="cursor:pointer">Status</th>
+                  <th data-sort="author" style="cursor:pointer">Autor</th>
+                  <th data-sort="category" style="cursor:pointer">Pozycja menu</th>
+                  <th data-sort="created" style="cursor:pointer">Data utworzenia</th>
+                  <th data-sort="views" style="cursor:pointer">Wyświetlenia</th>
+                  <th>Akcje</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% (articleList || []).forEach(function(a){ %>
+                  <tr data-id="<%= a.id %>">
+                    <td style="text-align:left"><a href="/aktualnosci/<%= a.slug %>" target="_blank"><%= a.title %></a></td>
+                    <td class="text-center" data-status="<%= a.status %>">
+                      <% if (a.status==='published') { %>
+                        <span class="badge badge-success">Opublikowany</span>
+                      <% } else if (a.status==='draft') { %>
+                        <span class="badge badge-draft">Szkic</span>
+                      <% } else { %>
+                        <%= a.status %>
+                      <% } %>
+                    </td>
+                    <td class="text-center"><%= a.authorName || '' %></td>
+                    <td class="text-center"><%= a.menuItemTitle || '' %></td>
+                    <td class="text-center" data-date="<%= new Date(a.createdAt).getTime() %>"><%= new Date(a.createdAt).toLocaleDateString('pl-PL') %></td>
+                    <td class="text-center" data-views="<%= a.viewCount %>"><%= a.viewCount %></td>
+                    <td class="actions">
+                      <a href="/aktualnosci/<%= a.slug %>" class="btn-icon gray" title="Podgląd" aria-label="Podgląd" target="_blank" rel="noopener">◱</a>
+                      <a href="/admin/articles/<%= a.id %>/edit" class="btn-icon green" title="Edytuj" aria-label="Edytuj">✎</a>
+                      <a href="#" data-id="<%= a.id %>" class="btn-icon red js-delete" title="Usuń" aria-label="Usuń">🗑</a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;gap:.75rem;flex-wrap:wrap">
+            <div>
+              <label for="pageSize" class="login-label" style="display:inline-block;margin-right:.25rem">Wierszy na stronę:</label>
+              <select id="pageSize" class="login-input" style="width:90px;display:inline-block">
+                <option>10</option>
+                <option>25</option>
+                <option>50</option>
+                <option>100</option>
+              </select>
+            </div>
+            <div id="paginationControls" style="margin-left:auto;display:flex;gap:.25rem;flex-wrap:wrap"></div>
+          </div>
+        </div>
+      </div>
+  <!-- Delete confirm modal -->
+  <div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+    <div class="modal-card">
+      <div class="modal-header" id="deleteTitle">Potwierdź usunięcie</div>
+      <div class="modal-body">
+        <p>Czy na pewno chcesz usunąć ten artykuł?</p>
+        <p id="deleteArticleTitle" class="text-muted" style="margin:.25rem 0 0 0;font-weight:600;color:#b91c1c"></p>
+        <p class="text-muted" style="margin-top:.5rem;font-size:.9rem">Uwaga: usunięcie artykułu spowoduje także usunięcie wszystkich jego poprzednich wersji.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" id="deleteCancelBtn">Anuluj</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirmBtn">Usuń</button>
+      </div>
+    </div>
+  </div>
+    </div>
+    <script>
+      (function(){
+        const table = document.getElementById('articlesTable');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const pageSizeSelect = document.getElementById('pageSize');
+        const paginationControls = document.getElementById('paginationControls');
+        let currentSort = { key: 'created', asc: false };
+        let currentPage = 1;
+
+        function getSortValue(tr, key){
+          const idxMap = { title:0, status:1, author:2, category:3, created:4, views:5 };
+          const cell = tr.children[idxMap[key]];
+          if (key === 'created') return parseInt(cell.dataset.date || '0', 10);
+          if (key === 'views') return parseInt(cell.dataset.views || (cell.innerText||'0'), 10);
+          if (key === 'status') return (cell.dataset.status || '').toLowerCase();
+          return (cell.innerText || '').toLowerCase();
+        }
+        function compare(a,b){ return a<b?-1:a>b?1:0; }
+
+        function sortBy(key){
+          const head = table.tHead.rows[0];
+          const idxMap = { title:0, status:1, author:2, category:3, created:4, views:5 };
+          const tbody = table.tBodies[0];
+          const rows = Array.from(tbody.rows);
+          const asc = currentSort.key===key ? !currentSort.asc : true;
+          rows.sort((r1,r2)=>{
+            const v1 = getSortValue(r1, key);
+            const v2 = getSortValue(r2, key);
+            return (compare(v1,v2))*(asc?1:-1);
+          });
+          rows.forEach(r=>tbody.appendChild(r));
+          currentSort={key,asc};
+        }
+
+        function getAllRows(){ return Array.from(table.tBodies[0].rows); }
+
+        function applyVisibility(rows){
+          const start = (currentPage-1) * parseInt(pageSizeSelect.value||'10',10);
+          const end = start + parseInt(pageSizeSelect.value||'10',10);
+          let visibleIndex = 0;
+          rows.forEach(r=>{
+            if (r.__match === false) { r.style.display='none'; return; }
+            const show = visibleIndex >= start && visibleIndex < end;
+            r.style.display = show ? '' : 'none';
+            if (r.__match !== false) visibleIndex++;
+          });
+        }
+
+        function renderPagination(totalVisible){
+          const size = parseInt(pageSizeSelect.value||'10',10);
+          const pages = Math.max(1, Math.ceil(totalVisible/size));
+          if (currentPage>pages) currentPage=pages;
+          paginationControls.innerHTML='';
+          const btn = (label, page, disabled=false, active=false)=>{
+            const a = document.createElement('button');
+            a.type='button'; a.textContent=label; a.className='btn btn-light';
+            if (disabled) a.disabled=true; if (active) a.style.background='#e5e7eb';
+            a.addEventListener('click', ()=>{ currentPage=page; filterRows(); });
+            return a;
+          };
+          paginationControls.appendChild(btn('«', Math.max(1,currentPage-1), currentPage===1));
+          const sizeWindow = 5; let start = Math.max(1, currentPage-Math.floor(sizeWindow/2));
+          let end = Math.min(pages, start+sizeWindow-1); start = Math.max(1, end-sizeWindow+1);
+          for(let p=start;p<=end;p++){ paginationControls.appendChild(btn(String(p), p, false, p===currentPage)); }
+          paginationControls.appendChild(btn('»', Math.min(pages,currentPage+1), currentPage===pages));
+        }
+
+        function filterRows(){
+          const q = (searchInput.value||'').toLowerCase();
+          const st = statusFilter.value;
+          const cat = categoryFilter.value.toLowerCase();
+          const rows = getAllRows();
+          let visibleCount = 0;
+          rows.forEach(r=>{
+            const matchesSearch = r.innerText.toLowerCase().includes(q);
+            const matchesStatus = !st || (r.children[1].dataset.status===st);
+            const matchesCat = !cat || r.children[3].innerText.toLowerCase()===cat;
+            r.__match = matchesSearch && matchesStatus && matchesCat;
+            if (r.__match) visibleCount++;
+          });
+          renderPagination(visibleCount);
+          applyVisibility(rows);
+        }
+
+        table.tHead.querySelectorAll('th[data-sort]').forEach(th=>{
+          th.addEventListener('click', ()=>{ sortBy(th.dataset.sort); filterRows(); });
+        });
+        [searchInput,statusFilter,categoryFilter,pageSizeSelect].forEach(el=>el.addEventListener('input', ()=>{ currentPage=1; filterRows(); }));
+        
+        // Delete modal
+        const modal = document.getElementById('deleteModal');
+        let pendingDeleteId = null;
+        document.addEventListener('click', (e)=>{
+          const btn = e.target.closest('.js-delete');
+          if(!btn) return;
+          e.preventDefault();
+          const tr = btn.closest('tr');
+          const title = tr?.children[0]?.innerText || '';
+          pendingDeleteId = btn.dataset.id || tr?.dataset.id || null;
+          document.getElementById('deleteArticleTitle').innerText = title;
+          modal.classList.add('open');
+        });
+        document.getElementById('deleteCancelBtn').addEventListener('click', ()=> modal.classList.remove('open'));
+        document.getElementById('deleteConfirmBtn').addEventListener('click', async ()=>{
+          if(!pendingDeleteId) return;
+          try{
+            const res = await fetch(`/admin/articles/${pendingDeleteId}/delete`, { method:'POST' });
+            const json = await res.json();
+            if(json.ok){
+              const row = table.querySelector(`tr[data-id="${pendingDeleteId}"]`);
+              row?.parentElement?.removeChild(row);
+              filterRows();
+              alert('Usunięto artykuł');
+            } else {
+              alert('Błąd usuwania artykułu');
+            }
+          }catch(err){ alert('Błąd usuwania'); }
+          modal.classList.remove('open');
+        });
+        // Initial render
+        filterRows();
+      })();
+    </script>
+<%- include('_footer') %>
+

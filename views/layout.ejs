@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Powiatowy Inspektorat Weterynarii w Giżycku - oficjalna strona internetowa' %>">
+    <meta name="keywords" content="<%= typeof metaKeywords !== 'undefined' ? metaKeywords : 'weterynaria, giżycko, inspektorat, zwierzęta, zdrowie' %>">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Powiatowy Inspektorat Weterynarii w Giżycku">
+    
+    <title><%= typeof title !== 'undefined' ? title : 'Powiatowy Inspektorat Weterynarii w Giżycku' %></title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/css/main.css" as="style">
+    <link rel="preload" href="/js/main.js" as="script">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/accessibility.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Skip links for screen readers -->
+    <style>
+        .skip-links {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            z-index: 1000;
+        }
+        .skip-links a {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+        .skip-links a:focus {
+            position: static;
+            left: 6px;
+            top: 7px;
+            width: auto;
+            height: auto;
+            padding: 8px 16px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <!-- Text-only toolbar (visible only in text-only mode) -->
+    <div class="text-only-toolbar" aria-hidden="true">
+        <p><a href="#" id="textOnlyReturn">Powrót do wersji graficznej</a></p>
+        <ul>
+            <li><a href="#main-navigation">Przejdź do głównego menu</a></li>
+            <li><a href="#main-content">Przejdź do treści</a></li>
+            <li><a href="#contact-info">Przejdź do kontaktu</a></li>
+        </ul>
+        <% if (menuStructure && menuStructure.length > 0) { %>
+            <ul>
+                <% menuStructure.forEach(function(item){ %>
+                    <li>
+                        <a href="<%= menuItems.generateUrl(item) %>"><%= item.title %></a>
+                        <% if (item.children && item.children.length > 0) { %>
+                            <ul>
+                                <% item.children.forEach(function(child){ %>
+                                    <li><a href="<%= menuItems.generateUrl(child, child.parentSlug) %>"><%= child.title %></a></li>
+                                <% }) %>
+                            </ul>
+                        <% } %>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+        <hr />
+    </div>
+    <!-- Skip links for accessibility -->
+    <div class="skip-links">
+        <a href="#main-content">Przejdź do treści głównej</a>
+        <a href="#main-navigation">Przejdź do menu głównego</a>
+        <a href="#contact-info">Przejdź do informacji kontaktowych</a>
+    </div>
+
+    <!-- Top accessibility bar -->
+    <div class="top-accessibility-bar">
+        <div class="container">
+            <div class="accessibility-left">
+                <span class="font-controls">
+                    <button id="font-decrease" class="font-btn" aria-label="Zmniejsz rozmiar czcionki">A-</button>
+                    <button id="font-reset" class="font-btn active" aria-label="Domyślny rozmiar czcionki">A</button>
+                    <button id="font-increase" class="font-btn" aria-label="Zwiększ rozmiar czcionki">A+</button>
+                </span>
+            </div>
+            <div class="accessibility-right">
+                <button id="contrast-toggle" class="utility-link" aria-pressed="false" aria-label="Przełącz tryb wysokiego kontrastu">Wersja kontrastowa</button>
+                <button id="textmode-toggle" class="utility-link" aria-pressed="false" aria-label="Przełącz tryb tekstowy">Wersja tekstowa</button>
+                <a href="/deklaracja-dostepnosci" class="utility-link">Deklaracja dostępności</a>
+                <a href="/slownik-skrotow" class="utility-link">Słownik skrótów</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header role="banner" class="site-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="/images/polish-coat-of-arms.png" alt="Herb Rzeczypospolitej Polskiej" class="logo-img">
+                    <div class="logo-text">
+                        <h1 class="site-title"><%= siteSettings.site_title || 'Powiatowy Inspektorat Weterynarii w Giżycku' %></h1>
+                        <p class="site-subtitle"><%= siteSettings.site_subtitle || 'Biuletyn Informacji Publicznej' %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main navigation -->
+    <nav id="main-navigation" role="navigation" aria-label="Menu główne" class="main-navigation">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Otwórz menu główne">
+                <span class="hamburger-icon" aria-hidden="true">☰</span>
+                Menu
+            </button>
+            <div style="height: 10px">&nbsp;</div>
+            <% if (menuStructure && menuStructure.length > 0) { %>
+            <ul class="main-menu" id="main-menu">
+                <% menuStructure.forEach(function(item){ %>
+                    <% if (item.children && item.children.length > 0) { %>
+                        <li class="menu-item-has-children">
+                            <a href="<%= menuItems.generateUrl(item) %>" aria-haspopup="true" aria-expanded="false"><%= item.title %></a>
+                            <ul class="submenu">
+                                <% item.children.forEach(function(child){ %>
+                                    <li><a href="<%= menuItems.generateUrl(child, child.parentSlug) %>"><%= child.title %></a></li>
+                                <% }) %>
+                            </ul>
+                        </li>
+                    <% } else { %>
+                        <li><a href="<%= menuItems.generateUrl(item) %>"><%= item.title %></a></li>
+                    <% } %>
+                <% }); %>
+            </ul>
+            <% } %>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb" aria-label="Ścieżka nawigacji">
+        <div class="container">
+            <ol class="breadcrumb-list">
+                <% if (breadcrumbs && breadcrumbs.length > 0) { %>
+                    <% breadcrumbs.forEach(function(crumb, index) { %>
+                        <li>
+                            <% if (crumb.isActive || !crumb.url) { %>
+                                <span aria-current="page"><%= crumb.title %></span>
+                            <% } else { %>
+                                <a href="<%= crumb.url %>"><%= crumb.title %></a>
+                            <% } %>
+                        </li>
+                    <% }); %>
+                <% } else { %>
+                    <!-- Fallback jeśli brak breadcrumbs -->
+                    <li><a href="/">Strona główna</a></li>
+                    <li><span>Status Prawny</span></li>
+                <% } %>
+            </ol>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main id="main-content" role="main" class="main-content" tabindex="-1">
+        <div class="container">
+            <div class="content-wrapper">
+                <!-- Left sidebar -->
+                <aside class="left-sidebar" role="complementary" aria-label="Menu boczne">
+                    <div class="sidebar-menu">
+                        <!-- Dynamic menu items from database -->
+                        <ul class="sidebar-list">
+                            <% if (menuStructure && menuStructure.length > 0) { %>
+                                <% menuStructure.forEach(function(item) { %>
+                                    <% if (item.children && item.children.length > 0) { %>
+                                        <!-- Pozycja z submenu -->
+                                        <li class="sidebar-item-has-children">
+                                            <a href="<%= menuItems.generateUrl(item) %>" class="sidebar-link sidebar-toggle" data-toggle="submenu" data-menu-key="<%= item.slug || ('menu-' + item.id) %>">
+                                                <span><%= item.title %></span>
+                                                <span class="sidebar-arrow">▼</span>
+                                            </a>
+                                            <ul class="sidebar-submenu <% if (item.slug === 'aktualnosci') { %>expanded<% } %>" data-parent-key="<%= item.slug || ('menu-' + item.id) %>">
+                                                <% item.children.forEach(function(child) { %>
+                                                    <li><a href="<%= menuItems.generateUrl(child, child.parentSlug) %>" class="sidebar-sublink"><%= child.title %></a></li>
+                                                <% }); %>
+                                            </ul>
+                                        </li>
+                                    <% } else { %>
+                                        <!-- Zwykła pozycja -->
+                                        <li><a href="<%= menuItems.generateUrl(item) %>" class="sidebar-link"><%= item.title %></a></li>
+                                    <% } %>
+                                <% }); %>
+                            <% } else { %>
+                                <!-- Fallback jeśli brak menu z bazy -->
+                                <li><a href="/status-prawny" class="sidebar-link">Status Prawny</a></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </aside>
+                
+                <!-- Main content area -->
+                <div class="main-content-area">
+                    <%- body %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact-info" role="contentinfo" class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Kontakt</h3>
+                    <p><%= siteSettings.site_title %></p>
+                    <p><%= siteSettings.contact_address %></p>
+                    <p>tel: <%= siteSettings.contact_phone %></p>
+                    <% if (siteSettings.contact_fax) { %><p>Fax: <%= siteSettings.contact_fax %></p><% } %>
+                    <p>e-mail: <a href="mailto:<%= siteSettings.contact_email %>"><%= siteSettings.contact_email %></a></p>
+                    <p>NIP: <%= siteSettings.nip %></p>
+                    <p>REGON: <%= siteSettings.regon %></p>
+                    <% if (siteSettings.epuap) { %><p><%= siteSettings.epuap %></p><% } %>
+                    <% if (siteSettings.edoreczenia) { %><p><%= siteSettings.edoreczenia %></p><% } %>
+                </div>
+                <div class="footer-section">
+                    <h3>Godziny pracy</h3>
+                    <p><%- siteSettings.office_hours %></p>
+                </div>
+                <div class="footer-section">
+                    <h3>Przydatne linki</h3>
+                    <ul>
+                        <li><a href="https://www.gov.pl/web/rolnictwo" target="_blank" rel="noopener">Ministerstwo Rolnictwa</a></li>
+                        <li><a href="https://www.wetgiw.gov.pl" target="_blank" rel="noopener">Główny Inspektorat Weterynaryjny</a></li>
+                        <li><a href="/bip">BIP</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Copyright -->
+    <div class="copyright-bar">
+        <div class="container">
+            <p>&copy; <%= new Date().getFullYear() %> <%= siteSettings.site_title || 'Powiatowy Inspektorat Weterynarii w Giżycku' %>. Wszystkie prawa zastrzeżone.</p>
+        </div>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="backToTopBtn" class="action-btn back-to-top-btn" aria-label="Powrót do góry strony" title="Powrót do góry">
+        <span>Do góry</span>
+        <span class="action-icon">↑</span>
+    </button>
+
+
+    <!-- Page-specific scripts -->
+    <%- script %>
+    
+    <!-- Global scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/accessibility.js"></script>
+</body>
+</html>

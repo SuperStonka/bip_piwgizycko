@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <main class="login-wrap">
+    <section class="login-card">
+      <header class="login-header">Panel Administracyjny CMS</header>
+      <div class="login-subtitle">Powiatowy Inspektorat Weterynaryjny w Giżycku</div>
+      <div class="login-body">
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="text-danger" role="alert" style="margin-bottom:.5rem;"><%= error %></div>
+        <% } %>
+        <form method="post" action="/admin/login">
+          <label for="username" class="login-label">Nazwa użytkownika</label>
+          <input id="username" type="text" name="username" required class="login-input">
+          <div style="height:.6rem"></div>
+          <label for="password" class="login-label">Hasło</label>
+          <input id="password" type="password" name="password" required class="login-input">
+          <button type="submit" class="btn btn-primary login-btn">Zaloguj się</button>
+        </form>      
+      </div>
+    </section>
+  </main>
+</body>
+</html>

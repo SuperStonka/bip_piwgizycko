@@ -1,0 +1,159 @@
+<%- include('_header', { title, adminUser, activeTab: 'settings' }) %>
+  <div class="page-content">
+    <div class="mt-3 mb-2" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div>
+        <h2 class="h4 mb-1" style="margin:0;">Ustawienia strony</h2>
+        <div class="text-muted" style="font-size:.95rem">Zarządzaj podstawowymi informacjami i ustawieniami strony</div>
+      </div>
+    </div>
+
+    <form id="settingsForm">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem">
+        <!-- Podstawowe informacje -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="h5 mb-0">Podstawowe informacje</h3>
+          </div>
+          <div class="settings-section-body">
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Tytuł strony <span class="req-star">*</span></label>
+                  <input type="text" class="login-input" name="page_title" value="<%= settings.site_title || '' %>" required>
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Podtytuł strony</label>
+                  <input type="text" class="login-input" name="page_subtitle" value="<%= settings.site_subtitle || '' %>">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Opis strony</label>
+                  <textarea class="login-input" name="page_description" rows="4" style="resize:vertical" placeholder="Opis strony internetowej"><%= settings.site_description || '' %></textarea>
+                </div>
+          </div>
+        </div>
+
+        <!-- Ustawienia SEO -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="h5 mb-0">Ustawienia SEO</h3>
+          </div>
+          <div class="settings-section-body">
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Słowa kluczowe (oddzielone przecinkami)</label>
+                  <textarea class="login-input" name="seo_keywords" rows="4" style="resize:vertical" placeholder="weterynaria, inspekcja, giżycko, powiat"><%= settings.seo_keywords || '' %></textarea>
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Google Analytics ID</label>
+                  <input type="text" class="login-input" name="google_analytics_id" value="<%= settings.google_analytics_id || '' %>" placeholder="GA-XXXXXXXXX-X">
+                </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem">
+        <!-- Dane kontaktowe -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="h5 mb-0">Dane kontaktowe</h3>
+          </div>
+          <div class="settings-section-body">
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Adres</label>
+                  <input type="text" class="login-input" name="contact_address" value="<%= settings.contact_address || '' %>" placeholder="ul. gen. Józefa Bema 8, 11-500 Giżycko">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Miasto</label>
+                  <input type="text" class="login-input" name="contact_city" value="<%= settings.contact_city || '' %>" placeholder="11-500 Giżycko">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Telefon</label>
+                  <input type="text" class="login-input" name="contact_phone" value="<%= settings.contact_phone || '' %>" placeholder="87 423 27 53">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Fax</label>
+                  <input type="text" class="login-input" name="contact_fax" value="<%= settings.contact_fax || '' %>" placeholder="87 423 27 53">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Email</label>
+                  <input type="email" class="login-input" name="contact_email" value="<%= settings.contact_email || '' %>" placeholder="gizycko.piw@gizycko.piw.gov.pl">
+                </div>
+          </div>
+        </div>
+
+        <!-- Godziny pracy -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="h5 mb-0">Godziny pracy</h3>
+          </div>
+          <div class="settings-section-body">
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Godziny pracy</label>
+                  <textarea class="login-input" name="working_hours" rows="4" style="resize:vertical" placeholder="wtorek - piątek: 7:00 – 15:00&#10;poniedziałek: 7:00 – 18:00"><%= settings.office_hours || '' %></textarea>
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">ePUAP</label>
+                  <input type="text" class="login-input" name="epuap" value="<%= settings.epuap || '' %>" placeholder="ePUAP: /PIWGIZYCKO/SkrytkaESP">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">e-Doręczenia</label>
+                  <input type="text" class="login-input" name="edoreczenia" value="<%= settings.edoreczenia || '' %>" placeholder="adres do e-Doręczeń: AE:PL-52051-68956-JGIJC-21">
+                </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem">
+        <!-- Dane organizacyjne -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="h5 mb-0">Dane organizacyjne</h3>
+          </div>
+          <div class="settings-section-body">
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">NIP</label>
+                  <input type="text" class="login-input" name="nip" value="<%= settings.nip || '' %>" placeholder="849-14-09-144">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">REGON</label>
+                  <input type="text" class="login-input" name="regon" value="<%= settings.regon || '' %>" placeholder="790675625">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Numer konta bankowego</label>
+                  <input type="text" class="login-input" name="bank_account" value="<%= settings.bank_account || '' %>" placeholder="82 10101397 0087 2922 3100 0000">
+                </div>
+          </div>
+        </div>
+
+        <!-- Lokalizacja -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="h5 mb-0">Lokalizacja</h3>
+          </div>
+          <div class="settings-section-body">
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Gmina</label>
+                  <input type="text" class="login-input" name="gmina" value="<%= settings.gmina || '' %>" placeholder="Giżycko">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Powiat</label>
+                  <input type="text" class="login-input" name="powiat" value="<%= settings.powiat || '' %>" placeholder="Giżycki">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Województwo</label>
+                  <input type="text" class="login-input" name="wojewodztwo" value="<%= settings.wojewodztwo || '' %>" placeholder="warmińsko-mazurskie">
+                </div>
+                <div style="margin-bottom:1rem">
+                  <label class="login-label">Strona główna (slug)</label>
+                  <input type="text" class="login-input" name="home_page" value="<%= settings.home_page || '' %>" placeholder="adresy-telefony-kontaktowe-piw-gizycko">
+                </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:2rem">
+        <button type="button" class="btn btn-light" onclick="location.reload()">Anuluj</button>
+        <button type="submit" class="btn btn-primary">Zapisz ustawienia</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/js/admin-settings.js"></script>
+<%- include('_footer') %>

@@ -1,0 +1,283 @@
+<%- include('_header', { title, adminUser, activeTab: 'articles' }) %>
+  <div class="page-content">
+    <div class="mt-3 mb-2" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div>
+        <h2 class="h4 mb-1" style="margin:0;"><%= mode==='create' ? 'Dodaj artykuł' : 'Edytuj artykuł' %></h2>
+        <div class="text-muted" style="font-size:.95rem"><%= mode==='create' ? 'Utwórz nowy artykuł' : 'Edytuj wybrany artykuł' %></div>
+      </div>
+      <a href="/admin/articles" class="btn btn-light" style="margin-left:auto;">Powrót do listy artykułów</a>
+    </div>
+    <!-- Modal podglądu wersji -->
+    <div id="versionPreviewModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="versionPreviewTitle">
+      <div class="modal-card preview">
+        <div class="modal-header" id="versionPreviewTitle">Podgląd wersji</div>
+        <div class="modal-body">
+          <div style="margin-bottom:.5rem">
+            <div style="font-weight:600" id="versionPreviewMeta"></div>
+          </div>
+          <div style="display:grid;gap:.75rem">
+            <div>
+              <label class="login-label">Tytuł artykułu</label>
+              <div id="diffTitle" class="diff-box"></div>
+            </div>
+            <div>
+              <label class="login-label">Krótki opis (opcjonalnie)</label>
+              <div id="diffExcerpt" class="diff-box"></div>
+            </div>
+            <div>
+              <label class="login-label">Treść artykułu</label>
+              <div id="diffContent" class="diff-box"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" id="versionPreviewClose">Zamknij</button>
+          <button type="button" class="btn btn-danger" id="versionRestoreConfirm">Wczytaj do formularza</button>
+        </div>
+      </div>
+    </div>
+    <!-- Modale edycji linku/obrazu dla Quill -->
+    <div id="fileEditModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="fileEditTitle">
+      <div class="modal-card">
+        <div class="modal-header" id="fileEditTitle">Edycja nazwy linku</div>
+        <div class="modal-body">
+          <label class="login-label" for="fileDisplayName">Wyświetlana nazwa</label>
+          <input id="fileDisplayName" type="text" class="login-input" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" id="fileEditCancel">Anuluj</button>
+          <button type="button" class="btn btn-primary" id="fileEditConfirm">Zapisz</button>
+        </div>
+      </div>
+    </div>
+    <div id="imageEditModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="imageEditTitle">
+      <div class="modal-card">
+        <div class="modal-header" id="imageEditTitle">Ustawienia obrazu</div>
+        <div class="modal-body" style="display:grid;gap:.5rem">
+          <div>
+            <label class="login-label" for="imgAlt">Tekst alternatywny (alt)</label>
+            <input id="imgAlt" type="text" class="login-input" />
+          </div>
+          <div>
+            <label class="login-label" for="imgWidth">Szerokość (px)</label>
+            <input id="imgWidth" type="number" class="login-input" min="1" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" id="imageEditCancel">Anuluj</button>
+          <button type="button" class="btn btn-primary" id="imageEditConfirm">Zapisz</button>
+        </div>
+      </div>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-error"><%- error %><button type="button" class="close" aria-label="Zamknij" onclick="this.parentElement.remove()">×</button></div>
+    <% } %>
+    <div id="formAlert" class="alert alert-error" style="display:none">
+      <span id="formAlertText"></span>
+      <button type="button" class="close" aria-label="Zamknij" onclick="this.parentElement.style.display='none'">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;align-items:start;">
+      <form id="articleForm" method="post" action="<%= mode==='create' ? '/admin/articles' : ('/admin/articles/' + article.id) %>">
+        <% if (mode==='edit') { %>
+          <input type="hidden" id="articleId" value="<%= article.id %>">
+        <% } %>
+        <div style="display:grid;gap:1rem">
+          <!-- Karta: Tytuł + Slug -->
+          <div class="card">
+            <div class="card-body">
+              <div style="display:grid;gap:.75rem">
+                <div>
+                  <label class="login-label">Tytuł artykułu <span class="req-star">*</span></label>
+                  <input type="text" name="title" class="login-input" value="<%= article.title || '' %>" required>
+                </div>
+                <div class="inline-field">
+                  <div class="field-grow">
+                    <label class="login-label">Slug (adres URL) <span class="req-star">*</span></label>
+                    <input type="text" name="slug" class="login-input" value="<%= article.slug || '' %>" maxlength="50" required>
+                  </div>
+                  <button type="button" class="btn btn-light" id="regenSlugBtn" style="flex:0 0 auto;white-space:nowrap">Regeneruj</button>
+                </div>
+                <div class="text-muted" style="font-size:.85rem">Maksymalnie 50 znaków. Slug zostanie automatycznie wygenerowany z tytułu.</div>
+              </div>
+            </div>
+          </div>
+          <!-- Karta: Krótki opis -->
+          <div class="card">
+            <div class="card-body">
+              <label class="login-label">Krótki opis (opcjonalnie)</label>
+              <textarea name="excerpt" class="login-input" rows="3"><%= article.excerpt || '' %></textarea>
+            </div>
+          </div>
+          <!-- Karta: Treść artykułu -->
+          <div class="card">
+            <div class="card-body">
+              <label class="login-label">Treść artykułu</label>
+              <div id="editor" style="background:#fff"></div>
+              <textarea name="content" id="contentInput" class="login-input" rows="142" style="display:none"><%- article.content || '' %></textarea>
+            </div>
+          </div>
+          
+        </div>
+      </form>
+      
+      <div class="right-col" style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="card">
+        <div class="card-body">
+          <div style="font-weight:600;margin-bottom:.75rem">Ustawienia publikacji</div>
+          <div style="display:grid;gap:.75rem">
+            <div>
+              <label class="login-label">Status</label>
+              <select name="status" form="articleForm" class="login-input">
+                <option value="draft" <%= (article.status==='draft') ? 'selected' : '' %>>Szkic</option>
+                <option value="published" <%= (article.status==='published') ? 'selected' : '' %>>Opublikowane</option>
+              </select>
+            </div>
+            <div>
+              <label class="login-label">Pozycja menu <span class="req-star">*</span></label>
+              <select name="menu_item_id" form="articleForm" class="login-input" required>
+                <option value="">Wybierz pozycję menu</option>
+                <% (menuItems||[]).forEach(function(mi){ %>
+                  <option value="<%= mi.id %>" <%= (article.menuItemId==mi.id)?'selected':'' %>><%= mi.title %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label class="login-label">Osoba odpowiedzialna za treść <span class="req-star">*</span></label>
+              <select name="responsible_user_id" form="articleForm" class="login-input" required>
+                <% (usersList||[]).forEach(function(u){ const name=((u.imie||'')+' '+(u.nazwisko||'')).trim() || u.username; %>
+                  <option value="<%= u.id %>" <%= (adminUser && u.id===adminUser.id)?'selected':'' %>><%= name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if (mode==='edit' && versions && versions.length) { %>
+        <div class="card versions">
+          <div class="card-body">
+            <div style="font-weight:600;margin-bottom:.5rem">Historia wersji</div>
+            <div style="overflow:auto">
+              <table>
+                <thead>
+                  <tr><th>Data</th><th>Użytkownik</th><th class="versions-actions">Akcje</th></tr>
+                </thead>
+                <tbody>
+                  <% versions.forEach(function(v){ const uname=((v.imie||'')+' '+(v.nazwisko||'')).trim() || v.username || '—'; %>
+                  <tr data-version-id="<%= v.id %>">
+                    <td><%= new Date(v.created_at).toLocaleString('pl-PL') %></td>
+                    <td><%= uname %></td>
+                    <td class="versions-actions">
+                      <button type="button" class="btn btn-light js-preview-version" data-version-id="<%= v.id %>">Podgląd</button>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+         </div>
+       </div>
+       <% } %>
+
+       <!-- Karta: Przyciski akcji (prawa kolumna pod historią) -->
+       <div class="card">
+         <div class="card-body" style="display:flex;gap:.5rem;justify-content:flex-end">
+           <a href="/admin/articles" class="btn btn-light">Anuluj</a>
+           <button type="submit" form="articleForm" class="btn btn-primary">Zapisz artykuł</button>
+         </div>
+       </div>
+      </div>
+
+    </div>
+    <script>
+      (function(){
+        const title = document.querySelector('input[name="title"]');
+        const slug = document.querySelector('input[name="slug"]');
+        const regen = document.getElementById('regenSlugBtn');
+        let manualSlug = false;
+        function toSlug(t){
+          return (t||'')
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+            .replace(/[^a-z0-9\s-]/g,'')
+            .trim()
+            .replace(/\s+/g,'-')
+            .replace(/-+/g,'-')
+            .slice(0,50);
+        }
+        // If user edits slug manually, stop auto-sync
+        slug?.addEventListener('input', ()=>{ manualSlug = true; if (slug.value.length>50) slug.value = slug.value.slice(0,50); });
+        // Auto-generate while typing the title (until user edits slug)
+        title?.addEventListener('input', ()=>{ if (!manualSlug) slug.value = toSlug(title.value); });
+        // Regenerate on click regardless of manualSlug
+        regen?.addEventListener('click', ()=>{ slug.value = toSlug(title.value); manualSlug = false; });
+      })();
+      // Simple client-side validation
+      (function(){
+        const form = document.getElementById('articleForm');
+        const alertBox = document.getElementById('formAlert');
+        const alertText = document.getElementById('formAlertText');
+        form?.addEventListener('submit', (e)=>{
+          const reqFields = [
+            { el: form.querySelector('input[name="title"]'), name: 'Tytuł artykułu' },
+            { el: form.querySelector('input[name="slug"]'), name: 'Slug (adres URL)' },
+            { el: form.querySelector('select[name="menu_item_id"]'), name: 'Kategoria menu' },
+            { el: form.querySelector('select[name="responsible_user_id"]'), name: 'Osoba odpowiedzialna za treść' }
+          ];
+          const missing = reqFields.filter(f=>!f.el || !f.el.value || (f.el.tagName==='SELECT' && f.el.value===''));
+          if (missing.length){
+            e.preventDefault();
+            alertText.textContent = 'Uzupełnij wymagane pola: ' + missing.map(m=>m.name).join(', ') + '.';
+            alertBox.style.display = '';
+            missing[0].el?.focus();
+          }
+        });
+      })();
+      // Version preview/restore
+      (function(){
+        const editorEl = document.getElementById('editor');
+        const hidden = document.getElementById('contentInput');
+        document.addEventListener('click', async (e)=>{
+          const previewBtn = e.target.closest('.js-preview-version');
+          if (previewBtn) {
+            const id = previewBtn.dataset.versionId;
+            const articleId = '<%= article && article.id ? article.id : '' %>';
+            if(!id || !articleId) return;
+            const res = await fetch(`/admin/articles/${articleId}/versions/${id}`);
+            const json = await res.json();
+            if(json.ok){
+              // Fill preview modal
+              const m = document.getElementById('versionPreviewModal');
+              const meta = document.getElementById('versionPreviewMeta');
+              const t = document.getElementById('versionPreviewTitleText');
+              const c = document.getElementById('versionPreviewContent');
+              meta.textContent = new Date(json.version.created_at).toLocaleString('pl-PL');
+              t.textContent = json.version.title || '';
+              c.innerHTML = json.version.content || '';
+              m.classList.add('open');
+            }
+          }
+          const restoreBtn = e.target.closest('.js-restore-version');
+          if (restoreBtn) {
+            if (!confirm('Przywrócić wybraną wersję?')) return;
+            const id = restoreBtn.dataset.versionId;
+            const articleId = '<%= article && article.id ? article.id : '' %>';
+            if(!id || !articleId) return;
+            const res = await fetch(`/admin/articles/${articleId}/versions/${id}/restore`, { method:'POST' });
+            const json = await res.json();
+            if(json.ok){ location.href = '/admin/articles/<%= article && article.id ? article.id : '' %>/edit?restored=1'; }
+            else alert('Błąd przywracania wersji');
+          }
+        });
+      })();
+      // Close preview modal
+      (function(){
+        const m = document.getElementById('versionPreviewModal');
+        const closeBtn = document.getElementById('versionPreviewClose');
+        closeBtn?.addEventListener('click', ()=> m.classList.remove('open'));
+        m?.addEventListener('click', (e)=>{ if (e.target === m) m.classList.remove('open'); });
+      })();
+    </script>
+  </div>
+<%- include('_footer') %>
+

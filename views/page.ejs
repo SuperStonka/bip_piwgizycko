@@ -1,0 +1,138 @@
+
+<!-- Content area -->
+<div class="content-area" data-article-id="<%= page.id || '' %>">
+    <!-- Page data for JavaScript -->
+    <!-- Article container -->
+    <article class="article-container">
+        <!-- Article header -->
+        <div class="article-header">
+            <h1 style="font-size: 24px;"><%= page.title %></h1>
+        </div>
+        
+        <!-- Article content -->
+        <div class="article-content" style="padding-top: 30px; padding-bottom: 30px;">
+            <%- page.content %>                    
+        </div>
+
+        <div class="article-meta" style="font-size: 10px; color: lightgrey; padding: 10px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; align-items: flex-start;">
+            <div class="article-meta-info" style="text-align: right;">
+                <% if (page && page.updatedAt) { %>
+                    <p class="text-muted-sm" style="margin-bottom: 2px;"><strong>Ostatnia aktualizacja:</strong> <%= new Date(page.updatedAt).toLocaleDateString('pl-PL') %></p>
+                <% } else if (page && page.createdAt) { %>
+                    <p class="text-muted-sm" style="margin-bottom: 2px;"><strong>Data utworzenia:</strong> <%= new Date(page.createdAt).toLocaleDateString('pl-PL') %></p>
+                <% } %>
+                <% if (page && page.author) { %>
+                    <p class="text-muted-sm" style="margin-bottom: 2px;"><strong>Autor:</strong> <%= page.author %></p>
+                <% } %>
+                <% if (page && (page.viewCount > 0 || page.view_count > 0)) { %>
+                    <p class="text-muted-sm" style="margin-bottom: 2px;"><strong>Odsłony:</strong> <%= page.viewCount || page.view_count %></p>
+                <% } %>
+            </div>
+        </div>
+        
+        <!-- Article footer -->
+        <div class="article-footer">
+            <div class="article-actions">
+                <div class="article-actions-left">
+                    <button type="button" class="action-btn">
+                        <span class="action-icon">⎙</span>
+                        Drukuj
+                    </button>
+                    <button type="button" class="action-btn pdf-btn">
+                        <span class="action-icon">📄</span>
+                        Zapisz do PDF
+                    </button>
+                </div>
+                <div class="article-actions-right">
+                    <a href="#" class="action-btn">
+                        <span class="action-icon">↻</span>
+                        poprzednie wersje
+                    </a>
+                    <button type="button" class="action-btn metryczka-btn">
+                        <span class="action-icon">ⓘ</span>
+                        metryczka
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+    </article>
+    
+    <!-- Metryczka Modal -->
+    <div class="metryczka-modal" id="metryczkaModal" style="display: none;">
+        <div class="metryczka-content">
+            <div class="metryczka-header">
+                <h3>Metryczka artykułu</h3>
+                <button class="metryczka-close" type="button">&times;</button>
+            </div>
+            <div class="metryczka-body">
+                <table class="metryczka-table">
+                    <tr>
+                        <td class="metryczka-label">Wytworzył:</td>
+                        <td class="metryczka-value"><%= page.author || 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Odpowiedzialny za treść:</td>
+                        <td class="metryczka-value"><%= page.responsible || page.responsiblePerson || 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Data wytworzenia:</td>
+                        <td class="metryczka-value"><%= page.createdAt ? new Date(page.createdAt).toLocaleDateString('pl-PL') : 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Opublikował w BIP:</td>
+                        <td class="metryczka-value"><%= page.publishedBy || 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Data opublikowania:</td>
+                        <td class="metryczka-value"><%= page.publishedAt ? new Date(page.publishedAt).toLocaleDateString('pl-PL') + ' ' + new Date(page.publishedAt).toLocaleTimeString('pl-PL') : 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Ostatnio zaktualizował:</td>
+                        <td class="metryczka-value"><%= page.updatedBy || 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Data ostatniej aktualizacji:</td>
+                        <td class="metryczka-value"><%= page.updatedAt ? new Date(page.updatedAt).toLocaleDateString('pl-PL') + ' ' + new Date(page.updatedAt).toLocaleTimeString('pl-PL') : 'Brak danych' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Liczba wyświetleń:</td>
+                        <td class="metryczka-value" id="viewCountCell"><%= page.viewCount || page.view_count || '0' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Tytuł artykułu:</td>
+                        <td class="metryczka-value"><%= page.title || 'Brak tytułu' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Liczba słów:</td>
+                        <td class="metryczka-value"><%= page.content ? page.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(word => word.length > 0).length : '0' %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">Data wyświetlenia:</td>
+                        <td class="metryczka-value"><%= new Date().toLocaleDateString('pl-PL') + ' ' + new Date().toLocaleTimeString('pl-PL') %></td>
+                    </tr>
+                    <tr>
+                        <td class="metryczka-label">URL:</td>
+                        <td class="metryczka-value url-field" style="word-break: break-all;"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="metryczka-footer">
+                <button class="btn btn-secondary" type="button">Zamknij</button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<% if (typeof isHomepage !== 'undefined' && isHomepage) { %>
+<script>
+// Set homepage data for menu highlighting
+console.log('DEBUG: Setting homepage data in page.ejs script');
+window.homepageData = {
+    isHomepage: true,
+    slug: "<%= homepageSlug || '' %>"
+};
+console.log('DEBUG: Homepage data set:', window.homepageData);
+</script>
+<% } %>
