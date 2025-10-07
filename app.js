@@ -308,15 +308,21 @@ const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
+  name: 'bip.sid', // Custom session name
   cookie: { 
-    secure: process.env.NODE_ENV === 'production' && process.env.HTTPS === 'true',
+    secure: false, // Set to false for HTTP, even in production (Nginx handles HTTPS)
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     httpOnly: true,
     sameSite: 'lax',
-    path: '/'
-  },
-  proxy: process.env.NODE_ENV === 'production' // Trust proxy in production
+    path: '/',
+    domain: undefined // Don't set domain explicitly
+  }
 };
+
+// Add proxy setting only in production
+if (process.env.NODE_ENV === 'production') {
+  sessionConfig.proxy = true;
+}
 
 // Use FileStore for production, MemoryStore for development
 if (process.env.NODE_ENV === 'production') {
@@ -336,6 +342,25 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(session(sessionConfig));
+
+// Debug middleware - log session info (remove in production)
+if (IS_DEV || process.env.DEBUG_SESSIONS === 'true') {
+  app.use((req, res, next) => {
+    console.log('Session Debug:', {
+      path: req.path,
+      method: req.method,
+      hasSession: !!req.session,
+      sessionID: req.session?.id,
+      cookie: req.session?.cookie,
+      headers: {
+        host: req.headers.host,
+        'x-forwarded-proto': req.headers['x-forwarded-proto'],
+        'x-forwarded-for': req.headers['x-forwarded-for']
+      }
+    });
+    next();
+  });
+}
 
 // Database connection
 let db = null;
@@ -370,6 +395,23 @@ async function connectToDatabase() {
 
 // Initialize database connection
 connectToDatabase();
+
+// Database check middleware for admin routes
+app.use('/admin', (req, res, next) => {
+  if (!db) {
+    return res.status(503).send(`
+      <html>
+        <head><title>Service Unavailable</title></head>
+        <body style="font-family:sans-serif;text-align:center;padding:50px">
+          <h1>Database Connection Error</h1>
+          <p>The application is starting up. Please refresh in a moment.</p>
+          <script>setTimeout(() => location.reload(), 3000);</script>
+        </body>
+      </html>
+    `);
+  }
+  next();
+});
 
 // Routes (mount admin BEFORE main to avoid catch-all :slug capturing /admin)
 app.use('/admin', require('./routes/admin'));

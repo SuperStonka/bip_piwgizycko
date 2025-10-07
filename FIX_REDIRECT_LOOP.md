@@ -23,14 +23,23 @@ npm install
 nano .env
 ```
 
-Dodaj lub zaktualizuj linię:
+**WAŻNE:** Upewnij się, że masz te ustawienia:
 ```env
-HTTPS=false
+NODE_ENV=production
+PORT=3002
+DEBUG_SESSIONS=true  # Włącz na chwilę do debugowania, potem wyłącz
+
+# Upewnij się że session secret jest ustawiony!
+SESSION_SECRET=jakis_bardzo_dlogi_losowy_ciag_znakow_min_32_znaki
 ```
 
-Jeśli używasz HTTPS (certyfikat SSL), ustaw:
-```env
-HTTPS=true
+### 3. Upewnij się, że folder sessions istnieje:
+
+```bash
+cd ~/bippiwgizycko
+mkdir -p sessions
+chmod 755 sessions
+ls -la sessions/  # Sprawdź uprawnienia
 ```
 
 ### 3. Upewnij się, że Nginx jest poprawnie skonfigurowany:

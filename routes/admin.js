@@ -9,32 +9,70 @@ const fs = require('fs');
 
 // Helper: load current user into request (from session)
 async function loadCurrentUser(req, res, next) {
-  if (!req.session || !req.session.userId || !res.locals.db) {
+  // Skip if no session or no database connection
+  if (!req.session || !res.locals.db) {
     req.currentUser = null;
     return next();
   }
+  
+  // Skip if no userId in session
+  if (!req.session.userId) {
+    req.currentUser = null;
+    return next();
+  }
+  
   try {
     const user = await User.findById(res.locals.db, req.session.userId);
     req.currentUser = user;
   } catch (e) {
+    console.error('Error loading user:', e.message);
     req.currentUser = null;
+    // Clear invalid session
+    if (req.session) {
+      req.session.userId = null;
+    }
   }
   next();
 }
 
 // Auth guard for admin/editor roles
 function requireEditor(req, res, next) {
+  // Prevent redirect loop - check if already on login page
+  if (req.path === '/login') {
+    return next();
+  }
+  
   if (req.currentUser && (req.currentUser.role === 'admin' || req.currentUser.role === 'editor')) {
     return next();
   }
-  return res.redirect('/admin/login');
+  
+  // Only redirect if not already going to login
+  if (req.path !== '/login') {
+    return res.redirect('/admin/login');
+  }
+  
+  next();
 }
 
 router.use(loadCurrentUser);
 
 // Login page
 router.get('/login', (req, res) => {
-  if (req.currentUser) return res.redirect('/admin');
+  // Debug logging
+  console.log('Login page accessed:', {
+    hasSession: !!req.session,
+    sessionId: req.session?.id,
+    userId: req.session?.userId,
+    hasCurrentUser: !!req.currentUser,
+    currentUserRole: req.currentUser?.role
+  });
+  
+  // Prevent redirect loop
+  if (req.currentUser) {
+    console.log('User already logged in, redirecting to /admin');
+    return res.redirect('/admin');
+  }
+  
   res.render('admin/login', { layout: false, title: 'Logowanie - Panel administracyjny' });
 });
 
@@ -93,9 +131,27 @@ router.post('/login', express.urlencoded({ extended: true }), async (req, res) =
     }
     
     console.log('Login successful for user:', username, 'role:', user.role);
+    
+    // Save session explicitly
     req.session.userId = user.id;
     req.session.role = user.role;
-    return res.redirect('/admin');
+    
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).render('admin/login', { 
+          layout: false, 
+          title: 'Logowanie - Panel administracyjny', 
+          error: 'Błąd zapisywania sesji.' 
+        });
+      }
+      console.log('Session saved successfully:', {
+        sessionId: req.session.id,
+        userId: req.session.userId,
+        role: req.session.role
+      });
+      return res.redirect('/admin');
+    });
   } catch (e) {
     console.error('Admin login error:', e);
     return res.status(500).render('admin/login', { layout: false, title: 'Logowanie - Panel administracyjny', error: 'Błąd serwera.' });
