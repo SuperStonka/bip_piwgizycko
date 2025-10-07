@@ -1,14 +1,13 @@
+# .htaccess dla Node.js z Phusion Passenger
 
-# Enable friendly error pages for debugging
+# Włącz przyjazne strony błędów
 PassengerFriendlyErrorPages on
 
+# Passenger obsługuje wszystkie requesty automatycznie
+# Poniższe dyrektywy są opcjonalne i zależą od konfiguracji serwera
 
-# Redirect all requests to Node.js application
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/admin
-RewriteRule ^(.*)$ / [QSA,L]
+# Jeśli potrzebujesz określić ścieżkę do Node.js:
+# PassengerNodejs /usr/bin/node
 
 # Security Headers
 Header always set X-Content-Type-Options nosniff
@@ -16,7 +15,10 @@ Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-# Cache Control for Static Files
+# CORS (jeśli potrzebne)
+# Header always set Access-Control-Allow-Origin "*"
+
+# Cache Control dla plików statycznych
 <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
     ExpiresActive On
     ExpiresDefault "access plus 1 month"
@@ -34,13 +36,18 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
     AddOutputFilterByType DEFLATE application/rss+xml
     AddOutputFilterByType DEFLATE application/javascript
     AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
 </IfModule>
-
-# Redirect to HTTPS (uncomment if you have SSL)
-# RewriteEngine On
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Custom Error Pages
 ErrorDocument 404 /error
 ErrorDocument 500 /error
+
+# Protect sensitive files
+<FilesMatch "^(\.env|\.git|package\.json|package-lock\.json|node_modules)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes
