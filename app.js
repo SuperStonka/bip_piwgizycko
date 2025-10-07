@@ -281,14 +281,30 @@ app.use(async (req, res, next) => {
 });
 
 // Middleware
+const crypto = require('crypto');
+
+// Generate nonce for each request
+app.use((req, res, next) => {
+  res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
+  next();
+});
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
-      scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+      scriptSrc: [
+        "'self'", 
+        'https://cdn.jsdelivr.net',
+        // Allow unsafe-inline in development, use nonce in production
+        ...(IS_DEV ? ["'unsafe-inline'"] : [(req, res) => `'nonce-${res.locals.cspNonce}'`])
+      ],
       imgSrc: ["'self'", 'data:', 'https:'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"]
     },
   },
 }));
