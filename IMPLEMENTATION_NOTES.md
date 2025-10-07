@@ -1,5 +1,7 @@
 # Notatki implementacyjne - PIW Giżycko CMS
 
+**Repozytorium GitHub:** https://github.com/SuperStonka/bip_piwgizycko.git
+
 ## Status implementacji (ostatnia aktualizacja: 2025-01-08)
 
 ### ✅ Ukończone funkcjonalności
