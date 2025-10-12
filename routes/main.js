@@ -134,6 +134,16 @@ router.get('/:slug', async (req, res, next) => {
   try {
     const { slug } = req.params;
 
+    // NAPRAWA: Sprawdź czy to nie jest plik statyczny
+    if (slug.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|pdf|doc|docx)$/i)) {
+      return next(); // Przekaż do express.static
+    }
+
+    // NAPRAWA: Sprawdź czy to nie jest folder statyczny
+    if (slug.match(/^(css|js|images|uploads|download|build)/)) {
+      return next(); // Przekaż do express.static
+    }
+
     // Check if database is connected
     if (!res.locals.db) {
       return res.status(503).render('error', {
@@ -546,6 +556,18 @@ router.get('/:slug', async (req, res, next) => {
 router.get('/:parentSlug/:childSlug', async (req, res) => {
   try {
     const { parentSlug, childSlug } = req.params;
+    
+    // NAPRAWA: Sprawdź czy to nie są pliki statyczne
+    if (parentSlug.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|pdf|doc|docx)$/i) ||
+        childSlug.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|pdf|doc|docx)$/i)) {
+      return next(); // Przekaż do express.static
+    }
+
+    // NAPRAWA: Sprawdź czy to nie są foldery statyczne
+    if (parentSlug.match(/^(css|js|images|uploads|download|build)/) ||
+        childSlug.match(/^(css|js|images|uploads|download|build)/)) {
+      return next(); // Przekaż do express.static
+    }
     
     // Check if database is connected
     if (!res.locals.db) {
