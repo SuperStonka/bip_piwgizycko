@@ -1,21 +1,21 @@
-# .htaccess dla Node.js z Phusion Passenger
-# TYMCZASOWA NAPRAWA PĘTLI PRZEKIEROWAŃ:
-# - Wyłączono FilesMatch i mod_deflate (konflikt z Passenger)
-# - Passenger obsługuje pliki statyczne automatycznie
+# .htaccess dla Node.js z Apache Reverse Proxy (port 3002)
+# NAPRAWA: Zastąpiono Passenger reverse proxy
+# - Aplikacja Node.js działa na porcie 3002
+# - Apache przekierowuje wszystkie żądania na localhost:3002
 
-# Włącz przyjazne strony błędów
-PassengerFriendlyErrorPages on
+# Włącz mod_rewrite
+RewriteEngine On
 
-# KONFIGURACJA PASSENGER DLA NODE.JS
-PassengerEnabled on
-PassengerAppType node
-PassengerStartupFile app.js
-PassengerAppEnv production
+# Przekieruj wszystko na Node.js (port 3002)
+RewriteRule ^$ http://127.0.0.1:3002/ [P,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ http://127.0.0.1:3002/$1 [P,L]
 
-# Jeśli potrzebujesz określić ścieżkę do Node.js:
-# PassengerNodejs /usr/bin/node
-
-# Passenger obsługuje wszystkie requesty automatycznie
+# Ustaw nagłówki proxy
+ProxyPreserveHost On
+ProxyPass / http://127.0.0.1:3002/
+ProxyPassReverse / http://127.0.0.1:3002/
 
 # Security Headers
 Header always set X-Content-Type-Options nosniff
@@ -25,6 +25,9 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
 # CORS (jeśli potrzebne)
 # Header always set Access-Control-Allow-Origin "*"
+
+# UWAGA: Wszystkie pliki statyczne (CSS, JS, obrazy) są teraz obsługiwane przez Node.js
+# Express.static w app.js obsługuje pliki z folderu public/
 
 # TYMCZASOWO WYŁĄCZONE - powodowały konflikt z Passenger
 # Cache Control dla plików statycznych
