@@ -1,6 +1,12 @@
 // Load environment variables
 require('dotenv').config();
 
+// TYMCZASOWA NAPRAWA PĘTLI PRZEKIEROWAŃ:
+// - Wyłączono session-file-store (używany MemoryStore)
+// - Wyłączono proxy w konfiguracji sesji
+// - Te zmiany powinny rozwiązać problem z pętlą przekierowań
+// - Po rozwiązaniu problemu można przywrócić oryginalną konfigurację
+
 // Fallback for Phusion Passenger
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'production';
@@ -335,27 +341,28 @@ const sessionConfig = {
   }
 };
 
-// Add proxy setting only in production
-if (process.env.NODE_ENV === 'production') {
-  sessionConfig.proxy = true;
-}
+// TYMCZASOWO: Wyłącz proxy i FileStore aby rozwiązać problem z pętlą przekierowań
+// if (process.env.NODE_ENV === 'production') {
+//   sessionConfig.proxy = true;
+// }
 
-// Use FileStore for production, MemoryStore for development
-if (process.env.NODE_ENV === 'production') {
-  try {
-    const FileStore = require('session-file-store')(session);
-    sessionConfig.store = new FileStore({
-      path: './sessions',
-      ttl: 24 * 60 * 60, // 24 hours
-      retries: 5
-    });
-    if (IS_DEV) console.log('✅ Using FileStore for sessions (production)');
-  } catch (error) {
-    console.log('⚠️  FileStore not available, using MemoryStore (not recommended for production)');
-  }
-} else {
-  if (IS_DEV) console.log('✅ Using MemoryStore for sessions (development)');
-}
+// TYMCZASOWO: Używaj MemoryStore dla wszystkich środowisk (bez FileStore)
+console.log('✅ Using MemoryStore for sessions (temporary fix for redirect loop)');
+// if (process.env.NODE_ENV === 'production') {
+//   try {
+//     const FileStore = require('session-file-store')(session);
+//     sessionConfig.store = new FileStore({
+//       path: './sessions',
+//       ttl: 24 * 60 * 60, // 24 hours
+//       retries: 5
+//     });
+//     if (IS_DEV) console.log('✅ Using FileStore for sessions (production)');
+//   } catch (error) {
+//     console.log('⚠️  FileStore not available, using MemoryStore (not recommended for production)');
+//   }
+// } else {
+//   if (IS_DEV) console.log('✅ Using MemoryStore for sessions (development)');
+// }
 
 app.use(session(sessionConfig));
 
