@@ -6,11 +6,16 @@
 # Włącz przyjazne strony błędów
 PassengerFriendlyErrorPages on
 
-# Passenger obsługuje wszystkie requesty automatycznie
-# Poniższe dyrektywy są opcjonalne i zależą od konfiguracji serwera
+# KONFIGURACJA PASSENGER DLA NODE.JS
+PassengerEnabled on
+PassengerAppType node
+PassengerStartupFile app.js
+PassengerAppEnv production
 
 # Jeśli potrzebujesz określić ścieżkę do Node.js:
 # PassengerNodejs /usr/bin/node
+
+# Passenger obsługuje wszystkie requesty automatycznie
 
 # Security Headers
 Header always set X-Content-Type-Options nosniff

@@ -1,0 +1,31 @@
+# .htaccess dla Node.js z Apache Reverse Proxy (port 3002)
+# Alternatywna konfiguracja - jeśli Passenger nie działa
+
+# Włącz mod_rewrite
+RewriteEngine On
+
+# Przekieruj wszystko na Node.js (port 3002)
+RewriteRule ^$ http://127.0.0.1:3002/ [P,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ http://127.0.0.1:3002/$1 [P,L]
+
+# Ustaw nagłówki proxy
+ProxyPreserveHost On
+ProxyPass / http://127.0.0.1:3002/
+ProxyPassReverse / http://127.0.0.1:3002/
+
+# Security Headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Protect sensitive files
+<FilesMatch "^(\.env|\.git|package\.json|package-lock\.json|node_modules)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes
